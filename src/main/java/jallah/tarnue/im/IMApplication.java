@@ -6,7 +6,11 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
+import java.util.logging.Logger;
+
 public class IMApplication extends Application {
+    private static final Logger LOGGER = Logger.getLogger("IMServer");
+
     private static final String SERVER_CLIENT_FXML = "/fxml/server-client.fxml";
     private static final String TITLE = "jIM";
 
@@ -16,10 +20,15 @@ public class IMApplication extends Application {
 
     @Override
     public void start(Stage stage) throws Exception {
-        Parent root = FXMLLoader.load(getClass().getResource(SERVER_CLIENT_FXML));
-        Scene clientServerScene = new Scene(root);
+        FXMLLoader fxmlLoader = new FXMLLoader();
+        fxmlLoader.setLocation(getClass().getResource(SERVER_CLIENT_FXML));
+
+        Parent root = fxmlLoader.load();
+        Scene serverClientScene = new Scene(root);
+
         stage.setTitle(TITLE);
-        stage.setScene(clientServerScene);
+        stage.setScene(serverClientScene);
         stage.show();
+        LOGGER.info("[a0f957d9-2107-4612-b822-c3acb47f0dc4] started IMApplication!");
     }
 }
