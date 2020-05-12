@@ -18,10 +18,10 @@ public class ServerClientController {
     private static final String SERVER_FXML = "/fxml/server.fxml";
 
     @FXML
-    private Button clientBtn;
+    private Button joinBtn;
 
     @FXML
-    private Button serverBtn;
+    private Button hostBtn;
 
     @FXML
     private void startClient(ActionEvent event) {

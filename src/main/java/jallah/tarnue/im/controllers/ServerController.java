@@ -1,6 +1,7 @@
 package jallah.tarnue.im.controllers;
 
 import jallah.tarnue.im.server.IMServer;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -28,13 +29,13 @@ public class ServerController {
     }
 
     public void startServer() {
-        server.setUserNames(userNames);
         server.startServer();
     }
 
     @FXML
     private void initialize() {
         loginUsers.setItems(userNames);
+        server.setNewUserListener(this::addNewUser);
     }
 
     @FXML
@@ -44,6 +45,10 @@ public class ServerController {
         } catch (InterruptedException e) {
             LOGGER.severe("[26dd01b7-06f0-4c75-9e5d-fc8673f36359] Error while shutting down server: " + e.getMessage());
         }
+    }
+
+    private void addNewUser(String newUser) {
+        Platform.runLater(() -> userNames.add(newUser));
     }
 
 }

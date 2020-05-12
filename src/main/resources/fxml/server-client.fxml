@@ -6,15 +6,15 @@
 <VBox alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
       prefHeight="282.0" prefWidth="273.0" spacing="30.0" xmlns="http://javafx.com/javafx/10.0.2-internal"
       xmlns:fx="http://javafx.com/fxml/1" fx:controller="jallah.tarnue.im.controllers.ServerClientController">
-    <Button fx:id="clientBtn" layoutX="10.0" layoutY="10.0" mnemonicParsing="false" onAction="#startClient"
-            prefHeight="57.0" prefWidth="173.0" text="IM Client">
+    <Button fx:id="joinBtn" layoutX="10.0" layoutY="10.0" mnemonicParsing="false" onAction="#startClient"
+            prefHeight="57.0" prefWidth="173.0" text="Join">
         <font>
             <Font name="Calibri Bold" size="20.0"/>
         </font>
     </Button>
-    <Button fx:id="serverBtn" layoutX="60.0" layoutY="123.0" mnemonicParsing="false" onAction="#startServer"
+    <Button fx:id="hostBtn" layoutX="60.0" layoutY="123.0" mnemonicParsing="false" onAction="#startServer"
             prefHeight="57.0" prefWidth="173.0"
-            text="IM Server">
+            text="Host">
         <font>
             <Font name="Calibri Bold" size="20.0"/>
         </font>
