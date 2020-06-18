@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 
@@ -27,10 +28,11 @@ public class IMUserClient implements Runnable {
     @Override
     public void run() {
         while (!Thread.currentThread().isInterrupted()) {
-            try (var toServer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-                var fromServer = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
+            try (var toServer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8));
+                 var fromServer = new BufferedReader(new InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8))) {
                 toServer.write(userName);
                 toServer.write(Protocol.DONE);
+                toServer.flush();
 
                 while (isConnected.get()) {
                     String msgFromServer = fromServer.readLine();

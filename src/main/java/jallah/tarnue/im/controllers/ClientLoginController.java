@@ -48,9 +48,9 @@ public class ClientLoginController {
         if (validate()) {
             try {
                 userClient = new IMUserClient(txtFieldUsername.getText(), txtFieldHost.getText(), Integer.parseInt(txtFieldPort.getText()));
+                executorService.execute(userClient);
                 Alert successAlert = new Alert(Alert.AlertType.INFORMATION, "Successfully connected to the server", ButtonType.OK);
                 successAlert.show();
-                executorService.execute(userClient);
             } catch (IOException e) {
                 Alert errorAlert = new Alert(Alert.AlertType.ERROR, "Server is not up or invalid server data, please try again", ButtonType.OK);
                 errorAlert.showAndWait();
