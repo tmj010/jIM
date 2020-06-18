@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="274.0"
+            prefWidth="401.0" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="jallah.tarnue.im.controllers.ClientLoginController">
+    <center>
+        <VBox alignment="TOP_CENTER" prefHeight="200.0" prefWidth="100.0" BorderPane.alignment="CENTER">
+            <HBox alignment="CENTER" prefHeight="64.0" prefWidth="401.0">
+                <TextField fx:id="txtFieldUsername" promptText="username"/>
+            </HBox>
+            <HBox alignment="CENTER" layoutX="10.0" layoutY="10.0" prefHeight="64.0" prefWidth="401.0">
+                <TextField fx:id="txtFieldHost" prefHeight="25.0" prefWidth="154.0" promptText="host"/>
+            </HBox>
+            <HBox alignment="CENTER" layoutX="10.0" layoutY="10.0" prefHeight="64.0" prefWidth="401.0">
+                <TextField fx:id="txtFieldPort" promptText="port"/>
+            </HBox>
+            <HBox alignment="CENTER" layoutX="10.0" layoutY="138.0" prefHeight="64.0" prefWidth="401.0">
+                <Button fx:id="btnCancel" mnemonicParsing="false" prefHeight="39.0" onAction="#cancel"
+                        prefWidth="141.0" text="Cancel">
+                    <font>
+                        <Font size="18.0"/>
+                    </font>
+                    <HBox.margin>
+                        <Insets right="10.0"/>
+                    </HBox.margin>
+                </Button>
+                <Button fx:id="btnLogin" layoutX="260.0" layoutY="35.0" mnemonicParsing="false" onAction="#login"
+                        prefHeight="39.0" prefWidth="141.0" text="Login">
+                    <font>
+                        <Font size="18.0"/>
+                    </font>
+                    <HBox.margin>
+                        <Insets right="10.0"/>
+                    </HBox.margin>
+                </Button>
+            </HBox>
+        </VBox>
+    </center>
+</BorderPane>

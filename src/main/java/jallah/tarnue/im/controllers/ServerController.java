@@ -20,9 +20,9 @@ public class ServerController {
     @FXML
     private ListView<String> loginUsers;
 
-    private ObservableList<String> userNames = FXCollections.observableArrayList();
+    private final ObservableList<String> userNames = FXCollections.observableArrayList();
 
-    private IMServer server;
+    private final IMServer server;
 
     public ServerController() {
         server = new IMServer();
@@ -40,11 +40,7 @@ public class ServerController {
 
     @FXML
     private void stopServer(ActionEvent event) {
-        try {
-            server.shutServerDown();
-        } catch (InterruptedException e) {
-            LOGGER.severe("[26dd01b7-06f0-4c75-9e5d-fc8673f36359] Error while shutting down server: " + e.getMessage());
-        }
+        server.shutServerDown();
     }
 
     private void addNewUser(String newUser) {
