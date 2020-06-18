@@ -11,8 +11,8 @@ import java.util.logging.Logger;
 public class IMServerClientThread implements Runnable {
     private static final Logger LOGGER = Logger.getLogger("IMServerClientThread");
 
-    private AtomicBoolean online = new AtomicBoolean(true);
-    private Socket socket;
+    private final AtomicBoolean online = new AtomicBoolean(true);
+    private final Socket socket;
 
     public IMServerClientThread(Socket socket) {
         LOGGER.info("[70adf93f-b0ef-4974-a647-d62ccbf1fdbc] inside IMServerClientThread");
