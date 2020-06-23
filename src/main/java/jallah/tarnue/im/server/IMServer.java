@@ -27,7 +27,7 @@ public class IMServer {
     private final static AtomicInteger threadCount = new AtomicInteger(1);
 
     private final ExecutorService executorService = Executors.newFixedThreadPool(5, new IMServerThreadFactory());
-    private final List<User> users = new CopyOnWriteArrayList<>();
+    private final List<IMServerClientHandler> clientHandlers = new CopyOnWriteArrayList<>();
     private final AtomicBoolean isServerRunning = new AtomicBoolean(Boolean.TRUE);
 
     private IMNewUserListener newUserListener;
@@ -41,8 +41,8 @@ public class IMServer {
         this.newUserListener = loginUserListener;
     }
 
-    public List<User> getUsers() {
-        return users;
+    public List<IMServerClientHandler> getClientHandlers() {
+        return clientHandlers;
     }
 
     public Boolean isServerUp() {
@@ -65,8 +65,9 @@ public class IMServer {
 
                 while (isServerRunning.get()) {
                     Socket userSocket = serverSocket.accept();
-                    users.add(createNewUser(userSocket));
-                    executorService.execute(new IMServerClientHandler(users, userSocket));
+                    IMServerClientHandler clientHandler = new IMServerClientHandler(createNewUser(userSocket));
+                    clientHandlers.add(clientHandler);
+                    executorService.execute(clientHandler);
                 }
 
                 LOGGER.info("[8d86bab8-59eb-43fc-8027-1859eb74e211] Server has been shut down");

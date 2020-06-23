@@ -8,7 +8,6 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 
@@ -16,22 +15,23 @@ public class IMServerClientHandler implements Runnable {
     private static final Logger LOGGER = Logger.getLogger("IMServerClientThread");
 
     private final AtomicBoolean online = new AtomicBoolean(true);
-    private final Socket socket;
-    private List<User> users;
+    private final User user;
 
-    public IMServerClientHandler(List<User> users, Socket socket) {
+    public IMServerClientHandler(User user) {
         LOGGER.info("[70adf93f-b0ef-4974-a647-d62ccbf1fdbc] inside IMServerClientThread");
-        this.users = users;
-        this.socket = socket;
+        this.user = user;
+    }
+
+    public User getUser() {
+        return user;
     }
 
     @Override
     public void run() {
         try {
+            Socket socket = user.getSocket();
             try (var fromClient = new BufferedReader(new InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8));
                  var toClient = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8))) {
-                toClient.write("Welcome" + System.lineSeparator());
-                toClient.flush();
 
                 LOGGER.info("[d2a0d5f8-b3a0-4b37-8c9c-13e454118a4d] Got reader!!");
                 while (online.get()) {

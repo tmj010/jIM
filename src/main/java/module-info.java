@@ -3,6 +3,7 @@ module jallah.im {
     requires javafx.fxml;
     requires java.logging;
     requires org.apache.commons.lang3;
+    requires org.apache.commons.collections4;
 
     opens fxml to javafx.fxml;
     opens jallah.tarnue.im.controllers to javafx.fxml;
