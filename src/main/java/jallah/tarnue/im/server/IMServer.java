@@ -65,9 +65,8 @@ public class IMServer {
 
                 while (isServerRunning.get()) {
                     Socket userSocket = serverSocket.accept();
-                    User newUser = createNewUser(userSocket);
-                    users.add(newUser);
-                    //executorService.execute(new IMServerClientThread(userSocket));
+                    users.add(createNewUser(userSocket));
+                    executorService.execute(new IMServerClientHandler(users, userSocket));
                 }
 
                 LOGGER.info("[8d86bab8-59eb-43fc-8027-1859eb74e211] Server has been shut down");
@@ -80,15 +79,16 @@ public class IMServer {
 
         private User createNewUser(Socket userSocket) throws IMUserCreationException {
             StringBuilder userNameBuilder = new StringBuilder();
-            try (var reader = new BufferedReader(
-                    new InputStreamReader(userSocket.getInputStream(), StandardCharsets.UTF_8))) {
+            try  {
+                var fromClient = new BufferedReader(
+                        new InputStreamReader(userSocket.getInputStream(), StandardCharsets.UTF_8));
                 int name;
-                while ((name = reader.read()) != Protocol.DONE) {
+                while ((name = fromClient.read()) != Protocol.DONE) {
                     userNameBuilder.append((char) name);
                 }
                 User newUser = new User(userNameBuilder.toString(), userSocket);
                 newUserListener.addNewUser(newUser.getUserName());
-                LOGGER.info("[94dd70d0-ec0e-47e3-a921-49c957a9c321] user: " + userNameBuilder + " join jIM!");
+                LOGGER.info("[94dd70d0-ec0e-47e3-a921-49c957a9c321]: " + userNameBuilder + " join jIM!");
                 return newUser;
             } catch (Exception e) {
                 LOGGER.severe("[44c4127f-9087-425f-bdea-87366fcea41e] error while creating new user " + e.getMessage());
