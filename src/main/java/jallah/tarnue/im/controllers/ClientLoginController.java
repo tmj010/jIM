@@ -1,7 +1,6 @@
 package jallah.tarnue.im.controllers;
 
 import jallah.tarnue.im.client.IMUserClient;
-import jallah.tarnue.im.server.IMServer;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -18,12 +17,16 @@ import org.apache.commons.lang3.StringUtils;
 import java.io.IOException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.logging.Logger;
 
 public class ClientLoginController {
     private static final Logger LOGGER = Logger.getLogger("ClientLoginController");
 
     private static final String SERVER_CLIENT_FXML = "/fxml/server-client.fxml";
+    private static final String CLIENT_FXML = "/fxml/client.fxml";
+
     private final ExecutorService executorService = Executors.newFixedThreadPool(1);
 
     @FXML
@@ -50,7 +53,7 @@ public class ClientLoginController {
                 userClient = new IMUserClient(txtFieldUsername.getText(), txtFieldHost.getText(), Integer.parseInt(txtFieldPort.getText()));
                 executorService.execute(userClient);
                 Alert successAlert = new Alert(Alert.AlertType.INFORMATION, "Successfully connected to the server", ButtonType.OK);
-                successAlert.show();
+                successAlert.showAndWait().ifPresent(openClientWindow.apply(event));
             } catch (IOException e) {
                 Alert errorAlert = new Alert(Alert.AlertType.ERROR, "Server is not up or invalid server data, please try again", ButtonType.OK);
                 errorAlert.showAndWait();
@@ -63,18 +66,36 @@ public class ClientLoginController {
         }
     }
 
+    private final Function<ActionEvent, Consumer<ButtonType>> openClientWindow = event -> buttonType -> {
+        try {
+            if (ButtonType.OK == buttonType) {
+                openWindow(event, CLIENT_FXML);
+            }
+        } catch (IOException e) {
+            LOGGER.severe("[f83ebbf8-c649-4abe-b5d4-501cda77582e] Error while opening" + e.getMessage());
+        }
+    };
+
     @FXML
     private void cancel(ActionEvent event) throws IOException {
         clearInputBoxes();
+        openWindow(event, SERVER_CLIENT_FXML);
+    }
 
+    private void openWindow(ActionEvent event, String fxml) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader();
-        fxmlLoader.setLocation(getClass().getResource(SERVER_CLIENT_FXML));
+        fxmlLoader.setLocation(getClass().getResource(fxml));
+
+        if (CLIENT_FXML.equalsIgnoreCase(fxml)) {
+            ClientController clientController = fxmlLoader.getController();
+            clientController.setUserClient(userClient);
+        }
 
         Parent root = fxmlLoader.load();
-        Scene clientLoginScene = new Scene(root);
+        Scene scene = new Scene(root);
 
-        Stage stage = (Stage) ((Node)event.getSource()).getScene().getWindow();
-        stage.setScene(clientLoginScene);
+        Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+        stage.setScene(scene);
         stage.show();
     }
 

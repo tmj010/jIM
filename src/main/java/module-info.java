@@ -9,5 +9,7 @@ module jallah.im {
     opens jallah.tarnue.im.controllers to javafx.fxml;
 
     exports jallah.tarnue.im;
+    exports jallah.tarnue.im.client;
+    exports jallah.tarnue.im.listener;
     exports jallah.tarnue.im.controllers;
 }

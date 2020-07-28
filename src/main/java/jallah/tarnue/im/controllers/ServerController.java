@@ -1,6 +1,7 @@
 package jallah.tarnue.im.controllers;
 
 import jallah.tarnue.im.Protocol;
+import jallah.tarnue.im.listener.IMNewUserListener;
 import jallah.tarnue.im.model.User;
 import jallah.tarnue.im.server.IMServer;
 import jallah.tarnue.im.server.IMServerClientHandler;
@@ -56,7 +57,7 @@ public class ServerController {
     @FXML
     private void initialize() {
         loginUsers.setItems(userNames);
-        server.setNewUserListener(this::addNewUser);
+        server.setNewUserListener(this::newUserOperation);
     }
 
     @FXML
@@ -76,8 +77,14 @@ public class ServerController {
         }
     }
 
-    private void addNewUser(String newUser) {
-        Platform.runLater(() -> userNames.add(newUser));
+    private void newUserOperation(String newUser, IMNewUserListener.UserOperation userOperation) {
+        Platform.runLater(() -> {
+            if (IMNewUserListener.UserOperation.ADD == userOperation) {
+                userNames.add(newUser);
+            } else {
+                userNames.remove(newUser);
+            }
+        });
     }
 
     private void sendMsgToUsers(String msg) {

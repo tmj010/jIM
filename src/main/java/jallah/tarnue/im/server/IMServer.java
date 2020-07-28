@@ -6,8 +6,10 @@ import jallah.tarnue.im.listener.IMNewUserListener;
 import jallah.tarnue.im.model.User;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
@@ -18,6 +20,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.logging.Logger;
 
 
@@ -66,6 +70,8 @@ public class IMServer {
                 while (isServerRunning.get()) {
                     Socket userSocket = serverSocket.accept();
                     IMServerClientHandler clientHandler = new IMServerClientHandler(createNewUser(userSocket));
+                    clientHandlers.parallelStream()
+                            .forEach(sendNewlyCreateUsernameToUser.apply(clientHandler.getUser().getUserName()));
                     clientHandlers.add(clientHandler);
                     executorService.execute(clientHandler);
                 }
@@ -78,6 +84,19 @@ public class IMServer {
             }
         }
 
+        private final Function<String, Consumer<IMServerClientHandler>> sendNewlyCreateUsernameToUser = newUsername -> client -> {
+            try {
+                User user = client.getUser();
+                Socket socket = user.getSocket();
+                var toClient = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8));
+                toClient.write(Protocol.NEW_USER);
+                toClient.write(newUsername + System.lineSeparator());
+                toClient.flush();
+            } catch (IOException e) {
+                LOGGER.severe("[edb9b4c0-b661-4c75-bafa-28fd4b60163d] error while sending username to existing client " + e.getMessage());
+            }
+        };
+
         private User createNewUser(Socket userSocket) throws IMUserCreationException {
             StringBuilder userNameBuilder = new StringBuilder();
             try  {
@@ -88,7 +107,7 @@ public class IMServer {
                     userNameBuilder.append((char) name);
                 }
                 User newUser = new User(userNameBuilder.toString(), userSocket);
-                newUserListener.addNewUser(newUser.getUserName());
+                newUserListener.addNewUser(newUser.getUserName(), IMNewUserListener.UserOperation.ADD);
                 LOGGER.info("[94dd70d0-ec0e-47e3-a921-49c957a9c321]: " + userNameBuilder + " join jIM!");
                 return newUser;
             } catch (Exception e) {
