@@ -89,8 +89,13 @@ public class IMServer {
                 User user = client.getUser();
                 Socket socket = user.getSocket();
                 var toClient = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8));
+
                 toClient.write(Protocol.NEW_USER);
-                toClient.write(newUsername + System.lineSeparator());
+                toClient.newLine();
+
+                toClient.write(newUsername);
+                toClient.newLine();
+
                 toClient.flush();
             } catch (IOException e) {
                 LOGGER.severe("[edb9b4c0-b661-4c75-bafa-28fd4b60163d] error while sending username to existing client " + e.getMessage());
@@ -98,17 +103,13 @@ public class IMServer {
         };
 
         private User createNewUser(Socket userSocket) throws IMUserCreationException {
-            StringBuilder userNameBuilder = new StringBuilder();
             try  {
                 var fromClient = new BufferedReader(
                         new InputStreamReader(userSocket.getInputStream(), StandardCharsets.UTF_8));
-                int name;
-                while ((name = fromClient.read()) != Protocol.DONE) {
-                    userNameBuilder.append((char) name);
-                }
-                User newUser = new User(userNameBuilder.toString(), userSocket);
+                String userName = fromClient.readLine();
+                User newUser = new User(userName, userSocket);
                 newUserListener.addNewUser(newUser.getUserName(), IMNewUserListener.UserOperation.ADD);
-                LOGGER.info("[94dd70d0-ec0e-47e3-a921-49c957a9c321]: " + userNameBuilder + " join jIM!");
+                LOGGER.info(String.format("[94dd70d0-ec0e-47e3-a921-49c957a9c321]: %s join jIM!", userName));
                 return newUser;
             } catch (Exception e) {
                 LOGGER.severe("[44c4127f-9087-425f-bdea-87366fcea41e] error while creating new user " + e.getMessage());
