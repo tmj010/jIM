@@ -9,7 +9,11 @@ import javafx.fxml.FXML;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TabPane;
 
+import java.util.logging.Logger;
+
 public class ClientController {
+    private static final Logger LOGGER = Logger.getLogger("ClientController");
+
     @FXML
     private TabPane chatTabs;
 
@@ -22,12 +26,12 @@ public class ClientController {
 
     public void setUserClient(IMUserClient userClient) {
         this.userClient = userClient;
+        this.userClient.setUserListener(this::newUserOperation);
     }
 
     @FXML
     private void initialize() {
         loginUsers.setItems(userNames);
-        userClient.setUserListener(this::newUserOperation);
     }
 
     private void newUserOperation(String userName, IMNewUserListener.UserOperation userOperation) {

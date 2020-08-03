@@ -38,8 +38,10 @@ public class IMUserClient implements Runnable {
             try (var toServer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8));
                  var fromServer = new BufferedReader(new InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8))) {
                 toServer.write(userName);
-                toServer.write(Protocol.DONE);
+                toServer.newLine();
                 toServer.flush();
+
+                //TODO get all current user logged-in
 
                 while (isConnected.get()) {
                     String msgFromServer = fromServer.readLine();

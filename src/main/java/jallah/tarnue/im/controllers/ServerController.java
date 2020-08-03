@@ -24,6 +24,8 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
+import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.logging.Logger;
 
 public class ServerController {
@@ -93,19 +95,24 @@ public class ServerController {
             server.getClientHandlers().parallelStream()
                     .map(IMServerClientHandler::getUser)
                     .map(User::getSocket)
-                    .forEach(socket -> sendMsgToUser(socket, msg));
+                    .forEach(sendMsgToUserHelper.apply(msg));
         }
     }
 
-    private void sendMsgToUser(Socket socket, String msg) {
+    private final Function<String, Consumer<Socket>> sendMsgToUserHelper = msg -> socket -> {
         try {
             var toClient = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8));
+
             toClient.write(Protocol.FROM_SERVER);
+            toClient.newLine();
+
             toClient.write(msg);
-            toClient.write(Protocol.DONE);
+            toClient.newLine();
+
+            toClient.flush();
         } catch (IOException e) {
             LOGGER.severe("[e22703f9-d2b0-4048-8927-6b14b31d7ac8] error while sending message to client: " + e.getMessage());
         }
-    }
+    };
 
 }

@@ -86,12 +86,13 @@ public class ClientLoginController {
         FXMLLoader fxmlLoader = new FXMLLoader();
         fxmlLoader.setLocation(getClass().getResource(fxml));
 
+        Parent root = fxmlLoader.load();
+
         if (CLIENT_FXML.equalsIgnoreCase(fxml)) {
             ClientController clientController = fxmlLoader.getController();
             clientController.setUserClient(userClient);
         }
 
-        Parent root = fxmlLoader.load();
         Scene scene = new Scene(root);
 
         Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
