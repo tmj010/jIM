@@ -11,7 +11,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -27,9 +27,9 @@ public class IMUserClient implements Runnable {
     private final Socket socket;
 
     public IMUserClient(String userName, String host, int port) throws IOException {
-        this.userName = userName;
         this.socket = new Socket(host, port);
-        userNames = new CopyOnWriteArrayList<>();
+        this.userName = userName;
+        this.userNames = new CopyOnWriteArrayList<>();
     }
 
     @Override
@@ -41,7 +41,7 @@ public class IMUserClient implements Runnable {
                 toServer.newLine();
                 toServer.flush();
 
-                //TODO get all current user logged-in
+                LOGGER.info("[d9bb76ef-ab7f-4728-aa3d-bd4a8e0681df] Send for current users");
 
                 while (isConnected.get()) {
                     String msgFromServer = fromServer.readLine();
@@ -51,9 +51,13 @@ public class IMUserClient implements Runnable {
                         if (msgFromServer.equalsIgnoreCase(Protocol.NEW_USER)) {
                             LOGGER.info("[f792ed6c-04ef-448a-bfca-94bcac61cdda] Getting new user");
                             String newUsername = fromServer.readLine();
-                            userNames.add(newUsername);
-                            LOGGER.info("[c9a439b9-06d7-49e3-9322-71bf58be92a0] Got new user; " + newUsername + " just join jIM");
-                            userListener.addNewUser(newUsername, IMNewUserListener.UserOperation.ADD);
+                            addNewUserName(newUsername);
+                        } else if (msgFromServer.equalsIgnoreCase(Protocol.ADD_CURRENT_USERS)) {
+                            String currentUserStr = fromServer.readLine();
+                            LOGGER.info(String.format("[69fb7fde-4655-4ee8-affd-e6589490d21f] Adding already logged in users: %s", currentUserStr));
+                            Arrays.stream(currentUserStr.split(","))
+                                    .filter(this::isNewUserName)
+                                    .forEach(this::addNewUserName);
                         }
                     }
                 }
@@ -66,5 +70,22 @@ public class IMUserClient implements Runnable {
 
     public void setUserListener(IMNewUserListener userListener) {
         this.userListener = userListener;
+    }
+
+    private void addNewUserName(String newUserName) {
+        this.userNames.add(newUserName);
+        this.userListener.addNewUser(newUserName, IMNewUserListener.UserOperation.ADD);
+    }
+
+    public void getAllCurrentUserNamesFromServer() throws IOException {
+        var toServer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8));
+        toServer.write(Protocol.CURRENT_USERS);
+        toServer.newLine();
+        toServer.flush();
+    }
+
+    private boolean isNewUserName(String newUserName) {
+        return StringUtils.isNotBlank(newUserName) && !this.userName.equalsIgnoreCase(newUserName)
+                && !userNames.contains(newUserName);
     }
 }

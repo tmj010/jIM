@@ -5,4 +5,6 @@ public interface Protocol {
     int DONE = '~';
     int FROM_SERVER = '`';
     String NEW_USER = "NEW_USER";
+    String CURRENT_USERS = "CURRENT_USERS";
+    String ADD_CURRENT_USERS = "ADD_CURRENT_USERS";
 }

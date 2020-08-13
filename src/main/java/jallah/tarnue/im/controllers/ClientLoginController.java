@@ -90,7 +90,7 @@ public class ClientLoginController {
 
         if (CLIENT_FXML.equalsIgnoreCase(fxml)) {
             ClientController clientController = fxmlLoader.getController();
-            clientController.setUserClient(userClient);
+            clientController.addIMUserClient(userClient);
         }
 
         Scene scene = new Scene(root);

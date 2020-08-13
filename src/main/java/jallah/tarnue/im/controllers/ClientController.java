@@ -9,6 +9,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TabPane;
 
+import java.io.IOException;
 import java.util.logging.Logger;
 
 public class ClientController {
@@ -24,9 +25,14 @@ public class ClientController {
 
     private IMUserClient userClient;
 
-    public void setUserClient(IMUserClient userClient) {
-        this.userClient = userClient;
-        this.userClient.setUserListener(this::newUserOperation);
+    public void addIMUserClient(IMUserClient client) {
+        try {
+            this.userClient = client;
+            this.userClient.setUserListener(this::newUserOperation);
+            this.userClient.getAllCurrentUserNamesFromServer();
+        } catch (IOException e) {
+            LOGGER.severe(String.format("[d1367138-c9ba-4f5f-87bd-649a5f9ad646] error while adding IMUserClient: %s", e.getMessage()));
+        }
     }
 
     @FXML

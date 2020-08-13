@@ -69,11 +69,11 @@ public class IMServer {
 
                 while (isServerRunning.get()) {
                     Socket userSocket = serverSocket.accept();
-                    IMServerClientHandler clientHandler = new IMServerClientHandler(createNewUser(userSocket));
+                    IMServerClientHandler clientHandler = new IMServerClientHandler(createNewUser(userSocket), clientHandlers);
+                    executorService.execute(clientHandler);
                     clientHandlers.parallelStream()
                             .forEach(sendNewlyCreateUsernameToUser.apply(clientHandler.getUser().getUserName()));
                     clientHandlers.add(clientHandler);
-                    executorService.execute(clientHandler);
                 }
 
                 LOGGER.info("[8d86bab8-59eb-43fc-8027-1859eb74e211] Server has been shut down");
