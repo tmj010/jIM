@@ -27,8 +27,7 @@
         <TabPane fx:id="chatTabs" prefHeight="200.0" prefWidth="200.0" tabClosingPolicy="UNAVAILABLE"
                  BorderPane.alignment="CENTER">
             <tabs>
-                <Tab text="Untitled Tab 1"/>
-                <Tab text="Untitled Tab 2"/>
+                <Tab text="Server"/>
             </tabs>
         </TabPane>
     </center>

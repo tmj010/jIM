@@ -1,6 +1,7 @@
 package jallah.tarnue.im.client;
 
 import jallah.tarnue.im.Protocol;
+import jallah.tarnue.im.listener.IMMessageListener;
 import jallah.tarnue.im.listener.IMNewUserListener;
 import org.apache.commons.lang3.StringUtils;
 
@@ -21,8 +22,11 @@ public class IMUserClient implements Runnable {
     private static final Logger LOGGER = Logger.getLogger("IMUserClient");
 
     private static final AtomicBoolean isConnected = new AtomicBoolean(true);
+    private static final String SERVER = "server";
+
     private final List<String> userNames;
     private IMNewUserListener userListener;
+    private IMMessageListener messageListener;
     private final String userName;
     private final Socket socket;
 
@@ -58,6 +62,9 @@ public class IMUserClient implements Runnable {
                             Arrays.stream(currentUserStr.split(","))
                                     .filter(this::isNewUserName)
                                     .forEach(this::addNewUserName);
+                        } else if (msgFromServer.equalsIgnoreCase(Protocol.FROM_SERVER)) {
+                            String msg = fromServer.readLine();
+                            messageListener.processMessage(SERVER, msg);
                         }
                     }
                 }
@@ -66,6 +73,10 @@ public class IMUserClient implements Runnable {
                 LOGGER.severe("[0772f17c-6456-4d5c-b1a5-c0abb3cfbd43] error: " + e.getMessage());
             }
         }
+    }
+
+    public void setMessageListener(IMMessageListener messageListener) {
+        this.messageListener = messageListener;
     }
 
     public void setUserListener(IMNewUserListener userListener) {
