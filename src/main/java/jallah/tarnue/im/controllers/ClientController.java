@@ -6,7 +6,9 @@ import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
+import javafx.scene.Parent;
 import javafx.scene.control.ListView;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
@@ -19,6 +21,8 @@ import java.util.logging.Logger;
 
 public class ClientController {
     private static final Logger LOGGER = Logger.getLogger("ClientController");
+
+    private static final String CLIENT_CHAT_FXML = "/fxml/client-chat.fxml";
 
     @FXML
     private TabPane chatTabs;
@@ -42,13 +46,18 @@ public class ClientController {
     }
 
     @FXML
-    private void initialize() {
+    private void initialize() throws IOException {
         loginUsers.setItems(userNames);
 
+        FXMLLoader fxmlLoader = new FXMLLoader();
+        fxmlLoader.setLocation(getClass().getResource(CLIENT_CHAT_FXML));
+
+        Parent clientChatNode = fxmlLoader.load();
+        ClientChatController controller = fxmlLoader.getController();
+        clientChatNode.setUserData(controller);
+
         Tab serverTab = chatTabs.getTabs().get(0);
-        BorderPane borderPane = new BorderPane();
-        borderPane.setCenter(new TextFlow());
-        serverTab.setContent(borderPane);
+        serverTab.setContent(clientChatNode);
     }
 
     private void newUserOperation(String userName, IMNewUserListener.UserOperation userOperation) {
@@ -63,17 +72,13 @@ public class ClientController {
 
     private void processMessage(String username, String msg) {
         Platform.runLater(() -> {
-            Tab usernameTab = chatTabs.getTabs().stream().filter(tab -> tab.getText().equalsIgnoreCase(username))
+            Tab chatTab = chatTabs.getTabs().stream().filter(tab -> tab.getText().equalsIgnoreCase(username))
                     .findFirst().orElseThrow(() -> new RuntimeException("No such tap " + username));
 
-            Node content = usernameTab.getContent();
-            if (content instanceof BorderPane) {
-                BorderPane borderPane = (BorderPane) content;
-                Node centerNode = borderPane.getCenter();
-                if (centerNode instanceof TextFlow) {
-                    TextFlow textFlow = (TextFlow) centerNode;
-                    textFlow.getChildren().add(new Text(msg + System.lineSeparator()));
-                }
+            Node content = chatTab.getContent();
+            if (content.getUserData() instanceof ClientChatController) {
+                ClientChatController clientChatController = (ClientChatController) content.getUserData();
+                clientChatController.displayMessage(username, msg);
             }
         });
     }
