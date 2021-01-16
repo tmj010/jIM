@@ -3,6 +3,7 @@ package jallah.tarnue.im.client;
 import jallah.tarnue.im.Protocol;
 import jallah.tarnue.im.listener.IMMessageListener;
 import jallah.tarnue.im.listener.IMNewUserListener;
+import jallah.tarnue.im.model.User;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.BufferedReader;
@@ -29,11 +30,13 @@ public class IMUserClient implements Runnable {
     private IMMessageListener messageListener;
     private final String userName;
     private final Socket socket;
+    private final User user;
 
     public IMUserClient(String userName, String host, int port) throws IOException {
         this.socket = new Socket(host, port);
         this.userName = userName;
         this.userNames = new CopyOnWriteArrayList<>();
+        this.user = new User(userName, socket);
     }
 
     @Override
@@ -64,7 +67,11 @@ public class IMUserClient implements Runnable {
                                     .forEach(this::addNewUserName);
                         } else if (msgFromServer.equalsIgnoreCase(Protocol.FROM_SERVER)) {
                             String msg = fromServer.readLine();
-                            messageListener.processMessage(SERVER, msg);
+                            messageListener.processMessage(SERVER, SERVER, msg);
+                        } else if (msgFromServer.equalsIgnoreCase(Protocol.FROM_CLIENT_SERVER_TAB)) {
+                            String username = fromServer.readLine();
+                            String msg = fromServer.readLine();
+                            messageListener.processMessage(SERVER, username, msg);
                         }
                     }
                 }
@@ -83,6 +90,10 @@ public class IMUserClient implements Runnable {
         this.userListener = userListener;
     }
 
+    public User getUser() {
+        return user;
+    }
+
     private void addNewUserName(String newUserName) {
         this.userNames.add(newUserName);
         this.userListener.addNewUser(newUserName, IMNewUserListener.UserOperation.ADD);
@@ -92,6 +103,20 @@ public class IMUserClient implements Runnable {
         var toServer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8));
         toServer.write(Protocol.CURRENT_USERS);
         toServer.newLine();
+        toServer.flush();
+    }
+
+    public void sendMsg(String msg) throws IOException {
+        var toServer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8));
+        toServer.write(Protocol.FROM_CLIENT_TO_SERVER);
+        toServer.newLine();
+
+        toServer.write(userName);
+        toServer.newLine();
+
+        toServer.write(msg);
+        toServer.newLine();
+
         toServer.flush();
     }
 

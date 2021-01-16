@@ -1,5 +1,5 @@
 package jallah.tarnue.im.listener;
 
 public interface IMMessageListener {
-    void processMessage(String username, String msg);
+    void processMessage(String tab, String username, String msg);
 }

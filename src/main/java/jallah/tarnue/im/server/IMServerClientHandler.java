@@ -1,24 +1,30 @@
 package jallah.tarnue.im.server;
 
 import jallah.tarnue.im.Protocol;
+import jallah.tarnue.im.listener.IMMessageListener;
 import jallah.tarnue.im.model.User;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 public class IMServerClientHandler implements Runnable {
     private static final Logger LOGGER = Logger.getLogger("IMServerClientThread");
+    private static final String SERVER = "server";
 
     private final AtomicBoolean online = new AtomicBoolean(true);
+    private IMMessageListener messageListener;
     private final List<IMServerClientHandler> clientHandlers;
     private final User user;
 
@@ -26,6 +32,10 @@ public class IMServerClientHandler implements Runnable {
         LOGGER.info("[70adf93f-b0ef-4974-a647-d62ccbf1fdbc] inside IMServerClientThread");
         this.clientHandlers = clientHandlers;
         this.user = user;
+    }
+
+    public void setMessageListener(IMMessageListener messageListener) {
+        this.messageListener = messageListener;
     }
 
     public User getUser() {
@@ -59,6 +69,15 @@ public class IMServerClientHandler implements Runnable {
                             toClient.newLine();
 
                             toClient.flush();
+                        } else if (instruction.equalsIgnoreCase(Protocol.FROM_CLIENT_TO_SERVER)) {
+                            String username = fromClient.readLine();
+                            String msg = fromClient.readLine();
+                            messageListener.processMessage(SERVER, username, msg);
+
+                            clientHandlers.stream()
+                                    .filter(this::notUserName)
+                                    .forEach(sendMsgToOtherClient.apply(msg));
+
                         }
                     }
                 }
@@ -67,4 +86,27 @@ public class IMServerClientHandler implements Runnable {
             LOGGER.severe("[755085b2-9ffe-4fea-ba49-fc5d5ccff741] error in IMServerClientThread: " + e.getMessage());
         }
     }
+
+    private boolean notUserName(IMServerClientHandler clientHandler) {
+        return !clientHandler.getUser().getUserName().equalsIgnoreCase(getUser().getUserName());
+    }
+
+    final private Function<String, Consumer<IMServerClientHandler>> sendMsgToOtherClient = msg -> clientHandler -> {
+        try {
+            Socket socket = clientHandler.getUser().getSocket();
+            var toClient = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8));
+            toClient.write(Protocol.FROM_CLIENT_SERVER_TAB);
+            toClient.newLine();
+
+            toClient.write(getUser().getUserName());
+            toClient.newLine();
+
+            toClient.write(msg);
+            toClient.newLine();
+
+            toClient.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    };
 }

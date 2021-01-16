@@ -60,6 +60,7 @@ public class ServerController {
     private void initialize() {
         loginUsers.setItems(userNames);
         server.setNewUserListener(this::newUserOperation);
+        server.setMessageListener(this::processClientMsg);
     }
 
     @FXML
@@ -77,6 +78,10 @@ public class ServerController {
 
             sendMsgToUsers(msg);
         }
+    }
+
+    private void processClientMsg(String tab, String username, String msg) {
+        Platform.runLater(() -> txtFlowBoard.getChildren().add(new Text(username + ": " + msg + System.lineSeparator())));
     }
 
     private void newUserOperation(String newUser, IMNewUserListener.UserOperation userOperation) {

@@ -2,6 +2,7 @@ package jallah.tarnue.im.server;
 
 import jallah.tarnue.im.Protocol;
 import jallah.tarnue.im.exception.IMUserCreationException;
+import jallah.tarnue.im.listener.IMMessageListener;
 import jallah.tarnue.im.listener.IMNewUserListener;
 import jallah.tarnue.im.model.User;
 
@@ -35,6 +36,7 @@ public class IMServer {
     private final AtomicBoolean isServerRunning = new AtomicBoolean(Boolean.TRUE);
 
     private IMNewUserListener newUserListener;
+    private IMMessageListener messageListener;
 
     public void startServer() {
         LOGGER.info("[71942afe-9a4e-43b4-98c8-5eb82ac986db] Starting server");
@@ -53,6 +55,10 @@ public class IMServer {
         return isServerRunning.get();
     }
 
+    public void setMessageListener(IMMessageListener messageListener) {
+        this.messageListener = messageListener;
+    }
+
     public void shutServerDown() {
         LOGGER.info("[c4bc4ff2-82ef-4264-9565-3f12095a88d1] about to shut server down, is server up: " + isServerRunning.get());
         if (isServerRunning.get()) {
@@ -69,8 +75,12 @@ public class IMServer {
 
                 while (isServerRunning.get()) {
                     Socket userSocket = serverSocket.accept();
+
                     IMServerClientHandler clientHandler = new IMServerClientHandler(createNewUser(userSocket), clientHandlers);
+                    clientHandler.setMessageListener(messageListener);
+
                     executorService.execute(clientHandler);
+
                     clientHandlers.parallelStream()
                             .forEach(sendNewlyCreateUsernameToUser.apply(clientHandler.getUser().getUserName()));
                     clientHandlers.add(clientHandler);

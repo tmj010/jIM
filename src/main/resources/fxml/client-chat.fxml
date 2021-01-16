@@ -17,7 +17,7 @@
                 <HBox prefHeight="109.0" prefWidth="600.0">
                     <children>
                         <TextArea fx:id="msgBox" prefHeight="109.0" prefWidth="362.0"/>
-                        <Button fx:id="sendBtn" alignment="CENTER" mnemonicParsing="false"
+                        <Button fx:id="sendBtn" onAction="#sendMsg" alignment="CENTER" mnemonicParsing="false"
                                 nodeOrientation="LEFT_TO_RIGHT" prefHeight="50.0" prefWidth="109.0" text="Send">
                             <HBox.margin>
                                 <Insets left="25.0" top="20.0"/>

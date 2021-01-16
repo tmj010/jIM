@@ -12,4 +12,5 @@ module jallah.im {
     exports jallah.tarnue.im.client;
     exports jallah.tarnue.im.listener;
     exports jallah.tarnue.im.controllers;
+    exports jallah.tarnue.im.model;
 }

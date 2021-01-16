@@ -40,6 +40,12 @@ public class ClientController {
             userClient.setUserListener(this::newUserOperation);
             userClient.setMessageListener(this::processMessage);
             userClient.getAllCurrentUserNamesFromServer();
+
+            Tab serverTab = chatTabs.getTabs().get(0);
+            Node content = serverTab.getContent();
+
+            ClientChatController controller = (ClientChatController) content.getUserData();
+            controller.setUserClient(client);
         } catch (IOException e) {
             LOGGER.severe(String.format("[d1367138-c9ba-4f5f-87bd-649a5f9ad646] error while adding IMUserClient: %s", e.getMessage()));
         }
@@ -70,9 +76,9 @@ public class ClientController {
         });
     }
 
-    private void processMessage(String username, String msg) {
+    private void processMessage(String tab, String username, String msg) {
         Platform.runLater(() -> {
-            Tab chatTab = chatTabs.getTabs().stream().filter(tab -> tab.getText().equalsIgnoreCase(username))
+            Tab chatTab = chatTabs.getTabs().stream().filter(windowTab -> windowTab.getText().equalsIgnoreCase(tab))
                     .findFirst().orElseThrow(() -> new RuntimeException("No such tap " + username));
 
             Node content = chatTab.getContent();
