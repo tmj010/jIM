@@ -99,7 +99,7 @@ public class ServerController {
             LOGGER.info("[2e3cbda2-0f99-4e1d-9d38-cd54cb494ef0] About to send message to all clients!");
             server.getClientHandlers().parallelStream()
                     .map(IMServerClientHandler::getUser)
-                    .map(User::getSocket)
+                    .map(User::socket)
                     .forEach(sendMsgToUserHelper.apply(msg));
         }
     }

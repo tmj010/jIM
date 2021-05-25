@@ -45,7 +45,7 @@ public class IMServerClientHandler implements Runnable {
     @Override
     public void run() {
         try {
-            Socket socket = user.getSocket();
+            Socket socket = user.socket();
             try (var fromClient = new BufferedReader(new InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8));
                  var toClient = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8))) {
 
@@ -61,8 +61,8 @@ public class IMServerClientHandler implements Runnable {
 
                             String allUserNames = clientHandlers.stream()
                                     .map(IMServerClientHandler::getUser)
-                                    .map(User::getUserName)
-                                    .filter(userName -> !userName.equalsIgnoreCase(user.getUserName()))
+                                    .map(User::userName)
+                                    .filter(userName -> !userName.equalsIgnoreCase(user.userName()))
                                     .collect(Collectors.joining(","));
 
                             toClient.write(allUserNames);
@@ -88,17 +88,17 @@ public class IMServerClientHandler implements Runnable {
     }
 
     private boolean notUserName(IMServerClientHandler clientHandler) {
-        return !clientHandler.getUser().getUserName().equalsIgnoreCase(getUser().getUserName());
+        return !clientHandler.getUser().userName().equalsIgnoreCase(getUser().userName());
     }
 
     final private Function<String, Consumer<IMServerClientHandler>> sendMsgToOtherClient = msg -> clientHandler -> {
         try {
-            Socket socket = clientHandler.getUser().getSocket();
+            Socket socket = clientHandler.getUser().socket();
             var toClient = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8));
             toClient.write(Protocol.FROM_CLIENT_SERVER_TAB);
             toClient.newLine();
 
-            toClient.write(getUser().getUserName());
+            toClient.write(getUser().userName());
             toClient.newLine();
 
             toClient.write(msg);

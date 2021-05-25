@@ -82,7 +82,7 @@ public class IMServer {
                     executorService.execute(clientHandler);
 
                     clientHandlers.parallelStream()
-                            .forEach(sendNewlyCreateUsernameToUser.apply(clientHandler.getUser().getUserName()));
+                            .forEach(sendNewlyCreateUsernameToUser.apply(clientHandler.getUser().userName()));
                     clientHandlers.add(clientHandler);
                 }
 
@@ -97,7 +97,7 @@ public class IMServer {
         private final Function<String, Consumer<IMServerClientHandler>> sendNewlyCreateUsernameToUser = newUsername -> client -> {
             try {
                 User user = client.getUser();
-                Socket socket = user.getSocket();
+                Socket socket = user.socket();
                 var toClient = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8));
 
                 toClient.write(Protocol.NEW_USER);
@@ -118,7 +118,7 @@ public class IMServer {
                         new InputStreamReader(userSocket.getInputStream(), StandardCharsets.UTF_8));
                 String userName = fromClient.readLine();
                 User newUser = new User(userName, userSocket);
-                newUserListener.addNewUser(newUser.getUserName(), IMNewUserListener.UserOperation.ADD);
+                newUserListener.addNewUser(newUser.userName(), IMNewUserListener.UserOperation.ADD);
                 LOGGER.info(String.format("[94dd70d0-ec0e-47e3-a921-49c957a9c321]: %s join jIM!", userName));
                 return newUser;
             } catch (Exception e) {

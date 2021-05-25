@@ -36,7 +36,7 @@ public class ClientChatController {
     private void sendMsg(ActionEvent event) throws IOException {
         String msg = msgBox.getText();
         if (StringUtils.isNotBlank(msg)) {
-            String userName = userClient.getUser().getUserName();
+            String userName = userClient.getUser().userName();
             Text text = new Text(userName + ": " + msg + System.lineSeparator());
             msgArea.getChildren().add(text);
 
