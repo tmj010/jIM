@@ -82,8 +82,7 @@ public class ClientController {
                     .findFirst().orElseThrow(() -> new RuntimeException("No such tap " + username));
 
             Node content = chatTab.getContent();
-            if (content.getUserData() instanceof ClientChatController) {
-                ClientChatController clientChatController = (ClientChatController) content.getUserData();
+            if (content.getUserData() instanceof ClientChatController clientChatController) {
                 clientChatController.displayMessage(username, msg);
             }
         });
